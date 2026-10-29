@@ -1,0 +1,112 @@
+{
+  "info": {
+    "_postman_id": "5a4d417e-7c14-4e0b-a063-286c1cd7c62e",
+    "name": "Cerita API Testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "GET Semua Cerita (filter, pagination, sorting, projection)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/cerita?genre=Romance&page=1&limit=10&sortBy=createdAt&order=desc&fields=judul,penulis,genre,status,jumlahBab",
+          "host": ["{{base_url}}"],
+          "path": ["cerita"],
+          "query": [
+            { "key": "genre", "value": "Romance" },
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" },
+            { "key": "sortBy", "value": "createdAt" },
+            { "key": "order", "value": "desc" },
+            { "key": "fields", "value": "judul,penulis,genre,status,jumlahBab" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code adalah 200\", function () { pm.response.to.have.status(200); });",
+              "const data = pm.response.json();",
+              "pm.test(\"Response berisi data dan pagination\", function () {",
+              "    pm.expect(data.success).to.eql(true);",
+              "    pm.expect(data.data).to.be.an(\"array\");",
+              "    pm.expect(data.pagination).to.have.property(\"total\");",
+              "    pm.expect(data.count).to.eql(data.data.length);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "POST Tambah Cerita",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"judul\": \"Kisah di Balik Senja\",\n  \"penulis\": \"Dewi Lestari\",\n  \"genre\": \"Romance\",\n  \"sinopsis\": \"Sebuah kisah tentang pertemuan dan kesempatan kedua.\",\n  \"status\": \"ongoing\",\n  \"jumlahBab\": 12\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/cerita"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code adalah 201\", function () { pm.response.to.have.status(201); });",
+              "const data = pm.response.json();",
+              "pm.test(\"Cerita berhasil ditambahkan\", function () {",
+              "    pm.expect(data.success).to.eql(true);",
+              "    pm.expect(data.data.judul).to.eql(\"Kisah di Balik Senja\");",
+              "    pm.expect(data.data._id).to.be.a(\"string\");",
+              "});",
+              "pm.environment.set(\"ceritaId\", data.data._id);"
+            ]
+          }
+        }
+      ],
+      "response": []
+    },
+    {
+      "name": "GET Cerita by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/cerita/{{ceritaId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "PUT Ubah Cerita",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"judul\": \"Kisah di Balik Senja - Revisi\",\n  \"penulis\": \"Dewi Lestari\",\n  \"genre\": \"Romance\",\n  \"sinopsis\": \"Kisah tentang pertemuan dan kesempatan kedua.\",\n  \"status\": \"completed\",\n  \"jumlahBab\": 20\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{base_url}}/cerita/{{ceritaId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "DELETE Hapus Cerita",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/cerita/{{ceritaId}}"
+      },
+      "response": []
+    }
+  ]
+}
